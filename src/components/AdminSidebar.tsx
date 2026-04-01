@@ -1,0 +1,89 @@
+'use client'
+
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase'
+
+const DashboardIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+        <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+    </svg>
+)
+const AppointmentsIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+        <line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+)
+const CalendarIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+        <line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+        <circle cx="8" cy="15" r="1" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="15" r="1" fill="currentColor" stroke="none" />
+    </svg>
+)
+const CustomersIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+)
+const SignOutIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+)
+
+const links = [
+    { href: '/admin', icon: <DashboardIcon />, label: 'Dashboard' },
+    { href: '/admin/appointments', icon: <AppointmentsIcon />, label: 'Appointments' },
+    { href: '/admin/calendar', icon: <CalendarIcon />, label: 'Calendar' },
+    { href: '/admin/customers', icon: <CustomersIcon />, label: 'Customers' },
+]
+
+export default function AdminSidebar() {
+    const pathname = usePathname()
+    const router = useRouter()
+
+    async function handleLogout() {
+        const supabase = createClient()
+        await supabase.auth.signOut()
+        router.push('/admin/login')
+        router.refresh()
+    }
+
+    return (
+        <aside className="sidebar">
+            <p className="sidebar-section-label">Main</p>
+            {links.map(link => (
+                <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`sidebar-link ${pathname === link.href ? 'active' : ''}`}
+                >
+                    <span style={{
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0,
+                        color: pathname === link.href ? 'var(--gold)' : 'var(--text-secondary)',
+                    }}>
+                        {link.icon}
+                    </span>
+                    {link.label}
+                </Link>
+            ))}
+            <div style={{ flex: 1 }} />
+            <button className="sidebar-link" onClick={handleLogout} style={{ marginTop: 'auto', color: 'var(--red)', borderTop: '1px solid var(--navy-border)', borderRadius: 0, paddingTop: '0.875rem', gap: '0.625rem' }}>
+                <SignOutIcon />
+                Sign Out
+            </button>
+        </aside>
+    )
+}
