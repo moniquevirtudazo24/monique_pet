@@ -9,47 +9,6 @@ export interface EmailParams {
     admin_notes?: string
 }
 
-function hasEmailJsEnv(): boolean {
-    return !!(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID &&
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID &&
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
-    )
-}
-
-async function sendViaEmailJsBrowser(params: EmailParams): Promise<{ success: boolean; error?: unknown }> {
-    const emailjs = (await import('@emailjs/browser')).default
-    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!
-    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!
-    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
-
-    try {
-        await emailjs.send(
-            serviceId,
-            templateId,
-            {
-                to_email: params.to_email,
-                email: params.to_email,
-                user_email: params.to_email,
-                reply_to: params.to_email,
-                to: params.to_email,
-                to_name: params.to_name,
-                pet_name: params.pet_name,
-                service: params.service,
-                date_time: params.date_time,
-                status: params.status,
-                message: params.message,
-                admin_notes: params.admin_notes?.trim() || 'None',
-            },
-            { publicKey }
-        )
-        return { success: true }
-    } catch (err: any) {
-        const text = err?.text || err?.message || String(err)
-        return { success: false, error: text }
-    }
-}
-
 async function sendViaSmtpApi(params: EmailParams): Promise<{ success: boolean; result?: unknown; error?: unknown }> {
     const response = await fetch('/api/send-email', {
         method: 'POST',
@@ -71,9 +30,7 @@ async function sendViaSmtpApi(params: EmailParams): Promise<{ success: boolean; 
 }
 
 /**
- * Sends appointment mail. Uses the browser EmailJS SDK when EmailJS env vars exist
- * (server-side EmailJS REST calls are often blocked). Uses /api/send-email (Nodemailer)
- * when SMTP is preferred: set NEXT_PUBLIC_SMTP_ENABLED=true and SMTP_* on the server.
+ * Sends appointment mail. Uses /api/send-email (Nodemailer) strictly.
  */
 export async function sendAppointmentEmail(params: EmailParams) {
     if (!params.to_email?.trim()) {
@@ -81,18 +38,6 @@ export async function sendAppointmentEmail(params: EmailParams) {
     }
 
     try {
-        const useSmtp =
-            process.env.NEXT_PUBLIC_SMTP_ENABLED === 'true' ||
-            process.env.NEXT_PUBLIC_SMTP_ENABLED === '1'
-
-        if (useSmtp) {
-            return await sendViaSmtpApi(params)
-        }
-
-        if (hasEmailJsEnv()) {
-            return await sendViaEmailJsBrowser(params)
-        }
-
         return await sendViaSmtpApi(params)
     } catch (error: unknown) {
         console.error('Email send error:', error)
