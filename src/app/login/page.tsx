@@ -37,8 +37,10 @@ export default function LoginPage() {
         <div className="auth-container" style={{ background: '#f8fafc' }}>
             <div className="auth-box">
                 <div className="card" style={{ padding: '2.5rem', boxShadow: '0 10px 40px rgba(0,0,0,0.05)', borderRadius: '16px', border: 'none', background: '#ffffff' }}>
-                    <div style={{ marginBottom: '2rem' }}>
-                        <img src="/logo.png" alt="PawCare" style={{ height: '70px', width: 'auto', margin: '0 auto', display: 'block' }} />
+                    <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+                        <img src="/logo.png" alt="PawCare" style={{ height: '70px', width: 'auto', margin: '0 auto 1.5rem', display: 'block' }} />
+                        <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>Welcome back</h1>
+                        <p style={{ color: '#64748b', fontSize: '0.9rem', marginTop: '0.35rem' }}>Please enter your details</p>
                     </div>
 
                     {error && <div className="alert alert-error">{error}</div>}

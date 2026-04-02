@@ -1,103 +1,191 @@
 import Link from 'next/link'
+import { Leaf, Bath, Scissors, Citrus, Smile, Ear, Waves } from 'lucide-react'
 
-const PawIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="6" cy="6.5" rx="2" ry="2.5" />
-    <ellipse cx="10.5" cy="4" rx="2" ry="2.5" />
-    <ellipse cx="15" cy="6.5" rx="2" ry="2.5" />
-    <ellipse cx="18.5" cy="10.5" rx="1.8" ry="2.2" />
-    <path d="M12 10c-3 0-6 2.5-6 5 0 2 1.5 4 3 4.5.8.3 1.8 0 3 0s2.2.3 3 0c1.5-.5 3-2.5 3-4.5 0-2.5-3-5-6-5z" />
+// A stylized low-poly dog graphic similar to the mockup
+const GeometricDog = () => (
+  <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 'auto', maxWidth: '500px' }}>
+    <g stroke="#cbd5e1" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" opacity="0.6">
+      {/* Head and Ears */}
+      <path d="M140 50 L150 40 L160 55 L170 65 L175 75 L165 85 L145 75 Z" />
+      <path d="M140 50 L145 35 L155 45" />
+      <path d="M160 55 L165 45 L175 60 Z" />
+      
+      {/* Body */}
+      <path d="M145 75 L150 110 L160 160 L145 160 L135 120 L110 120 L105 160 L90 160 L95 110 L70 90 L40 90 L30 85 L45 75 L70 80 L100 80 L140 50 Z" />
+      
+      {/* Inner geometric lines */}
+      <path d="M100 80 L110 120" />
+      <path d="M135 120 L150 110" />
+      <path d="M70 80 L95 110" />
+      <path d="M70 90 L105 160" />
+      <path d="M135 120 L145 160" />
+      <path d="M145 75 L135 120" />
+      <path d="M100 80 L135 120" />
+      <path d="M45 75 L70 90" />
+      
+      {/* Back legs detail */}
+      <path d="M95 110 L85 140" />
+      <path d="M85 140 L90 160" />
+      <path d="M105 160 L115 140" />
+      <path d="M115 140 L110 120" />
+
+      {/* Front legs detail */}
+      <path d="M135 120 L130 145" />
+      <path d="M130 145 L145 160" />
+      <path d="M150 110 L155 135" />
+      <path d="M155 135 L160 160" />
+      
+      {/* Tail */}
+      <path d="M45 75 L30 65 L40 90" />
+    </g>
   </svg>
 )
 
 export default function LandingPage() {
   return (
-    <main style={{ minHeight: '100vh', background: 'var(--navy)', overflowX: 'hidden' }}>
+    <main style={{ minHeight: '100vh', backgroundColor: '#ffffff', color: '#0f172a', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+      
       {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-brand">
-          <div className="navbar-brand-icon" style={{ color: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PawIcon /></div>
-          PawCare
+      <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.5rem 3rem', maxWidth: '1440px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '3rem' }}>
+          <Link href="/" style={{ fontSize: '1.25rem', fontWeight: 800, textDecoration: 'none', color: '#0f172a' }}>
+            PawCare
+          </Link>
+          <div style={{ display: 'flex', gap: '1.5rem' }}>
+            <a href="#services" style={{ fontSize: '0.85rem', color: '#475569', textDecoration: 'none' }}>Services</a>
+            <a href="#about" style={{ fontSize: '0.85rem', color: '#475569', textDecoration: 'none' }}>About</a>
+          </div>
         </div>
-        <div className="navbar-spacer" />
-        <div className="navbar-links">
-          <Link href="/login" className="nav-link">Sign In</Link>
-          <Link href="/register" className="btn btn-primary" style={{ marginLeft: '0.5rem', padding: '0.5rem 1.125rem' }}>
-            Get Started
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <Link href="/login" style={{ fontSize: '0.85rem', color: '#475569', textDecoration: 'none', fontWeight: 500 }}>
+            Log In
+          </Link>
+          <Link href="/register" style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '0.5rem 1.25rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em', textDecoration: 'none' }}>
+            SIGN UP
           </Link>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section style={{
-        padding: '6rem 1.5rem 4rem',
-        textAlign: 'center',
-        background: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 60%), var(--navy)',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        <div style={{ position: 'absolute', top: '10%', left: '5%', width: 300, height: 300, borderRadius: '50%', background: 'rgba(201,168,76,0.03)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '0', right: '5%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(59,130,246,0.03)', filter: 'blur(100px)', pointerEvents: 'none' }} />
-
-        <div style={{ maxWidth: 700, margin: '0 auto', position: 'relative' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'var(--gold-muted)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 100, padding: '0.375rem 1rem', fontSize: '0.8rem', fontWeight: 600, color: 'var(--gold)', marginBottom: '1.5rem' }}>
-            Professional Pet Grooming Services
-          </div>
-          <h1 style={{ marginBottom: '1.25rem', background: 'linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Premium Grooming for<br />Your Beloved Pet
+      {/* Hero Section */}
+      <section style={{ display: 'flex', alignItems: 'center', padding: '4rem 3rem 6rem', maxWidth: '1440px', margin: '0 auto' }}>
+        <div style={{ flex: 1, paddingRight: '2rem' }}>
+          <h1 style={{ fontSize: '4.5rem', fontWeight: 800, lineHeight: 1.1, marginBottom: '1.5rem', letterSpacing: '-0.02em', color: '#0f172a' }}>
+            Exceptional Care<br />
+            for Your<br />
+            <span style={{ color: '#64748b' }}>Exceptional</span><br />
+            Companions.
           </h1>
-          <p style={{ fontSize: '1.1rem', maxWidth: 520, margin: '0 auto 2.5rem' }}>
-            Book professional grooming appointments online. Receive real-time status updates and email confirmations.
+          <p style={{ fontSize: '1.125rem', color: '#334155', maxWidth: '480px', lineHeight: 1.6, marginBottom: '2.5rem' }}>
+            Simple, elegant appointment booking for grooming, vaccinations, and wellness checks.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/register" className="btn btn-primary" style={{ padding: '0.875rem 2rem', fontSize: '1rem' }}>
-              Book an Appointment
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <Link href="/register" style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '0.875rem 2rem', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.05em', textDecoration: 'none' }}>
+              GET STARTED
             </Link>
-            <Link href="/login" className="btn btn-outline" style={{ padding: '0.875rem 2rem', fontSize: '1rem' }}>
-              Sign In
+            <Link href="#services" style={{ backgroundColor: '#e2e8f0', color: '#64748b', padding: '0.875rem 2rem', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.05em', textDecoration: 'none' }}>
+              VIEW SERVICES
             </Link>
+          </div>
+        </div>
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <GeometricDog />
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section id="services" style={{ backgroundColor: '#f8fafc', padding: '6rem 3rem' }}>
+        <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Our Services</h2>
+          <p style={{ fontSize: '1rem', color: '#475569', marginBottom: '3rem' }}>Tailored grooming options for every breed and coat type.</p>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+            
+            {/* Cards */}
+            <ServiceCard 
+              icon={<Leaf size={24} color="#7dd3fc" />} 
+              title="Full Grooming" 
+              desc="Comprehensive care including bath, haircut, nail trimming, and ear cleaning for total rejuvenation." 
+            />
+            <ServiceCard 
+              icon={<Bath size={24} color="#7dd3fc" />} 
+              title="Bath & Dry" 
+              desc="Gentle cleaning with premium organic shampoos followed by a stress-free blow dry." 
+            />
+            <ServiceCard 
+              icon={<Scissors size={24} color="#7dd3fc" />} 
+              title="Haircut Only" 
+              desc="Precision styling and trimming to maintain your pet's architectural silhouette." 
+            />
+            <ServiceCard 
+              icon={<Citrus size={24} color="#7dd3fc" />} 
+              title="Nail Trimming" 
+              desc="Safe and precise clipping or grinding to ensure comfort and healthy posture." 
+            />
+            <ServiceCard 
+              icon={<Smile size={24} color="#7dd3fc" />} 
+              title="Teeth Cleaning" 
+              desc="Professional plaque removal and oral hygiene checks for a healthy, vibrant smile." 
+            />
+            <ServiceCard 
+              icon={<Ear size={24} color="#7dd3fc" />} 
+              title="Ear Cleaning" 
+              desc="Meticulous cleaning of the ear canal to prevent infections and maintain comfort." 
+            />
+            <ServiceCard 
+              icon={<Waves size={24} color="#7dd3fc" />} 
+              title="De-shedding Treatment" 
+              desc="Specialized technique to remove loose undercoat, significantly reducing home shedding." 
+            />
+            
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section style={{ padding: '4rem 1.5rem', maxWidth: 1100, margin: '0 auto' }}>
-        <div className="grid-3" style={{ gap: '1.25rem' }}>
-          {[
-            { icon: 'S', title: 'Easy Scheduling', desc: 'Choose your preferred date, time, and service in just a few clicks.' },
-            { icon: 'E', title: 'Email Notifications', desc: 'Receive instant email updates when your appointment is approved, rejected, or rescheduled.' },
-            { icon: 'R', title: 'Real-Time Status', desc: 'Track your appointment status — pending, approved, or rejected — at any time.' },
-          ].map(f => (
-            <div key={f.title} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--gold-muted)', border: '1px solid rgba(201,168,76,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gold)', fontWeight: 800, fontSize: '1rem' }}>
-                {f.icon}
-              </div>
-              <div>
-                <h3 style={{ marginBottom: '0.375rem' }}>{f.title}</h3>
-                <p style={{ fontSize: '0.875rem' }}>{f.desc}</p>
-              </div>
+      {/* About Section */}
+      <section id="about" style={{ backgroundColor: '#ffffff', padding: '6rem 3rem' }}>
+        <div style={{ maxWidth: '1440px', margin: '0 auto', display: 'flex', gap: '4rem', alignItems: 'center' }}>
+          <div style={{ flex: 1 }}>
+            <h2 style={{ fontSize: '2.5rem', fontWeight: 700, color: '#0f172a', marginBottom: '1.5rem' }}>About PawCare</h2>
+            <p style={{ fontSize: '1.125rem', color: '#475569', lineHeight: 1.8, marginBottom: '1.5rem' }}>
+              At PawCare, we believe every pet deserves to be treated with love, patience, and the highest standard of grooming care. Founded by passionate animal lovers, our facility is designed to be a stress-free, luxurious environment for your furry companions.
+            </p>
+            <p style={{ fontSize: '1.125rem', color: '#475569', lineHeight: 1.8 }}>
+              From organic shampoos to precision styling, our experienced groomers are dedicated to enhancing both the health and happiness of your pets. We take pride in building trusting relationships with every animal that walks through our doors.
+            </p>
+          </div>
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+            <div style={{ width: '100%', maxWidth: '500px', height: '400px', backgroundColor: '#f8fafc', borderRadius: '24px', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+              <img src="/pets_cartoon.png" alt="Happy Cat and Dog" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Services */}
-      <section style={{ padding: '2rem 1.5rem 5rem', maxWidth: 1100, margin: '0 auto' }}>
-        <h2 style={{ marginBottom: '0.5rem' }}>Our Services</h2>
-        <p style={{ marginBottom: '2rem', fontSize: '0.9rem' }}>Tailored grooming options for every breed and coat type.</p>
-        <div className="grid-2" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
-          {['Full Grooming', 'Bath & Dry', 'Haircut Only', 'Nail Trimming', 'Teeth Cleaning', 'Ear Cleaning', 'De-shedding Treatment'].map(s => (
-            <div key={s} style={{ background: 'var(--navy-card)', border: '1px solid var(--navy-border)', borderRadius: 'var(--radius-sm)', padding: '0.875rem 1rem', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-              {s}
-            </div>
-          ))}
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{ borderTop: '1px solid var(--navy-border)', padding: '1.5rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-        &copy; {new Date().getFullYear()} PawCare. All rights reserved.
+      <footer style={{ backgroundColor: '#0f172a', padding: '3rem', borderTop: '1px solid #1e293b' }}>
+        <div style={{ maxWidth: '1440px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.25rem' }}>PawCare</div>
+            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>&copy; 2024 PawCare. Architectural Pet Excellence.</div>
+          </div>
+          <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.75rem', color: '#64748b' }}>
+            <Link href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link>
+            <Link href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Terms of Service</Link>
+            <Link href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Cookies</Link>
+          </div>
+        </div>
       </footer>
     </main>
+  )
+}
+
+function ServiceCard({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) {
+  return (
+    <div style={{ backgroundColor: '#ffffff', padding: '2rem', borderRadius: '4px', display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div style={{ marginBottom: '1.5rem' }}>{icon}</div>
+      <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#0f172a', marginBottom: '0.75rem' }}>{title}</h3>
+      <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.6, flex: 1 }}>{desc}</p>
+      <div style={{ marginTop: '2rem', width: '2rem', height: '3px', backgroundColor: '#e0f2fe' }}></div>
+    </div>
   )
 }
