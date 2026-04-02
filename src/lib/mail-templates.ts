@@ -45,9 +45,13 @@ export function buildAppointmentNotificationHtml(params: {
 }): string {
     const key = normalizeStatusKey(params.status)
     const st = STATUS_EMAIL[key]
+    const escapedNotes = params.admin_notes ? escapeHtml(params.admin_notes).replace(/\n/g, '<br/>') : ''
     const notes =
         params.admin_notes && params.admin_notes.trim() && params.admin_notes !== 'None'
-            ? `<tr><td colspan="2" style="padding:12px 0 0;border-top:1px solid #e5e7eb;"><strong>Notes</strong><br/><span style="color:#374151;">${escapeHtml(params.admin_notes)}</span></td></tr>`
+            ? `<div style="margin-top:24px;padding:16px;background:#f9fafb;border-left:4px solid ${st.border};border-radius:4px;">
+                 <p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.04em;">Message from PawCare</p>
+                 <p style="margin:0;color:#1f2937;font-size:15px;line-height:1.5;">${escapedNotes}</p>
+               </div>`
             : ''
 
     const badge = `<span style="display:inline-block;padding:6px 14px;border-radius:999px;font-weight:700;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;background:${st.bg};color:${st.color};border:1px solid ${st.border};">${escapeHtml(st.label)}</span>`
@@ -58,7 +62,7 @@ export function buildAppointmentNotificationHtml(params: {
 <body style="margin:0;padding:24px;background:#f4f4f5;font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.5;color:#111827;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;">
     <tr>
-      <td style="padding:28px 28px 8px;">
+      <td style="padding:28px;">
         <p style="margin:0 0 16px;">Hi ${escapeHtml(params.to_name)},</p>
         <p style="margin:0 0 20px;">${escapeHtml(params.message)}</p>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:15px;">
@@ -66,8 +70,8 @@ export function buildAppointmentNotificationHtml(params: {
           <tr><td style="padding:10px 0;color:#6b7280;border-top:1px solid #f3f4f6;">Service</td><td style="padding:10px 0;border-top:1px solid #f3f4f6;">${escapeHtml(params.service)}</td></tr>
           <tr><td style="padding:10px 0;color:#6b7280;border-top:1px solid #f3f4f6;">Date &amp; time</td><td style="padding:10px 0;border-top:1px solid #f3f4f6;">${escapeHtml(params.date_time)}</td></tr>
           <tr><td style="padding:10px 0;color:#6b7280;border-top:1px solid #f3f4f6;vertical-align:middle;">Status</td><td style="padding:10px 0;border-top:1px solid #f3f4f6;">${badge}</td></tr>
-          ${notes}
         </table>
+        ${notes}
       </td>
     </tr>
   </table>

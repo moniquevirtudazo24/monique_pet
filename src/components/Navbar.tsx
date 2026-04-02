@@ -47,23 +47,18 @@ export default function Navbar({ role }: { role?: string }) {
     if (role === 'admin') {
         return (
             <nav className="navbar">
-                <div className="navbar-brand">
-                    <div className="navbar-brand-icon" style={{ color: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PawIcon /></div>
-                    PawCare Admin
+                <div className="navbar-brand" style={{ gap: '0.875rem', alignItems: 'center' }}>
+                    <img src="/logo.png" alt="PawCare" style={{ height: '64px', width: 'auto', mixBlendMode: 'multiply' }} />
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '1rem', fontWeight: 600 }}>Admin Portal</span>
                 </div>
-                <div className="navbar-spacer" />
-                <button className="btn btn-ghost" style={{ fontSize: '0.8rem', padding: '0.375rem 0.875rem', gap: '0.4rem' }} onClick={handleLogout}>
-                    <SignOutNavIcon /> Sign Out
-                </button>
             </nav>
         )
     }
 
     return (
         <nav className="navbar">
-            <div className="navbar-brand">
-                <div className="navbar-brand-icon" style={{ color: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PawIcon /></div>
-                PawCare
+            <div className="navbar-brand" style={{ gap: '0.875rem', alignItems: 'center' }}>
+                <img src="/logo.png" alt="PawCare" style={{ height: '64px', width: 'auto', mixBlendMode: 'multiply' }} />
             </div>
             <div className="navbar-spacer" />
             <div className="navbar-links">

@@ -23,6 +23,14 @@ export default function DashboardPage() {
     const [editForm, setEditForm] = useState({ full_name: '', phone: '' })
     const [editLoading, setEditLoading] = useState(false)
     const [editToast, setEditToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
+    const [filter, setFilter] = useState<'all' | 'pending' | 'approved'>('all')
+
+    async function handleLogout() {
+        const supabase = createClient()
+        await supabase.auth.signOut()
+        router.push('/login')
+        router.refresh()
+    }
 
     useEffect(() => {
         async function load() {
@@ -34,7 +42,7 @@ export default function DashboardPage() {
                 supabase.from('profiles').select('full_name, email, phone').eq('id', user.id).single(),
                 supabase
                     .from('appointments')
-                    .select('*, pets(name, type)')
+                    .select('*, pets(name, type, breed, notes)')
                     .eq('owner_id', user.id)
                     .order('scheduled_at', { ascending: false }),
             ])
@@ -59,6 +67,11 @@ export default function DashboardPage() {
 
     const pending = appointments.filter(a => a.status === 'pending').length
     const approved = appointments.filter(a => a.status === 'approved').length
+
+    const filteredAppts = appointments.filter(a => {
+        if (filter === 'all') return true
+        return a.status === filter
+    })
 
     async function handleCancel() {
         if (!cancelAppt) return
@@ -87,7 +100,7 @@ export default function DashboardPage() {
         if (user) {
             const { data: appts } = await supabase
                 .from('appointments')
-                .select('*, pets(name, type)')
+                .select('*, pets(name, type, breed, notes)')
                 .eq('owner_id', user.id)
                 .order('scheduled_at', { ascending: false })
             setAppointments(appts || [])
@@ -102,17 +115,29 @@ export default function DashboardPage() {
             <Navbar />
             <div className="page-container">
                 {/* Header */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div>
-                        <h2>Welcome back, {profile?.full_name?.split(' ')[0] || 'there'}</h2>
-                        <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Track and manage all your grooming appointments here.</p>
-                        <button className="btn btn-ghost" style={{ padding: '0.35rem 0', fontSize: '0.8rem', marginTop: '0.5rem', color: 'var(--gold)' }}
-                            onClick={() => {
-                                setEditForm({ full_name: profile?.full_name || '', phone: profile?.phone || '' })
-                                setEditProfileModal(true)
-                            }}>
-                            Edit Profile
-                        </button>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                        <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.75rem', fontWeight: 700, flexShrink: 0, boxShadow: '0 4px 10px rgba(29, 78, 216, 0.2)' }}>
+                            {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div>
+                            <h2 style={{ marginBottom: '0.25rem' }}>Welcome back, {profile?.full_name?.split(' ')[0] || 'there'}</h2>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                                <p style={{ fontSize: '0.9rem' }}>Track and manage all your grooming appointments here.</p>
+                                <button className="btn btn-outline" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: 100, gap: '0.35rem' }}
+                                    onClick={() => {
+                                        setEditForm({ full_name: profile?.full_name || '', phone: profile?.phone || '' })
+                                        setEditProfileModal(true)
+                                    }}>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                    Edit Profile
+                                </button>
+                                <button className="btn btn-ghost" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: 100, gap: '0.35rem', color: '#ef4444' }} onClick={handleLogout}>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                                    Sign Out
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <Link href="/book" className="btn btn-primary">
                         Book New Appointment
@@ -121,15 +146,21 @@ export default function DashboardPage() {
 
                 {/* Stats */}
                 <div className="grid-3" style={{ marginBottom: '2rem' }}>
-                    <div className="stat-card gold">
+                    <div className="stat-card gold" 
+                         style={{ cursor: 'pointer', outline: filter === 'all' ? '2px solid var(--gold)' : 'none' }}
+                         onClick={() => setFilter('all')}>
                         <div className="stat-number">{appointments.length}</div>
                         <div className="stat-label">Total Appointments</div>
                     </div>
-                    <div className="stat-card yellow">
+                    <div className="stat-card yellow"
+                         style={{ cursor: 'pointer', outline: filter === 'pending' ? '2px solid var(--yellow)' : 'none' }}
+                         onClick={() => setFilter('pending')}>
                         <div className="stat-number">{pending}</div>
                         <div className="stat-label">Pending</div>
                     </div>
-                    <div className="stat-card green">
+                    <div className="stat-card green"
+                         style={{ cursor: 'pointer', outline: filter === 'approved' ? '2px solid var(--green)' : 'none' }}
+                         onClick={() => setFilter('approved')}>
                         <div className="stat-number">{approved}</div>
                         <div className="stat-label">Approved</div>
                     </div>
@@ -138,9 +169,9 @@ export default function DashboardPage() {
                 {/* Table */}
                 <div className="card" style={{ padding: 0 }}>
                     <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--navy-border)' }}>
-                        <h3>My Appointments</h3>
+                        <h3>{filter === 'all' ? 'My Appointments' : filter === 'pending' ? 'Pending Appointments' : 'Approved Appointments'}</h3>
                     </div>
-                    {appointments.length === 0 ? (
+                    {filteredAppts.length === 0 ? (
                         <div className="empty-state">
                             <div className="empty-icon" style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', width: 56, height: 56 }}>
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -167,11 +198,13 @@ export default function DashboardPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {appointments.map(appt => (
+                                    {filteredAppts.map(appt => (
                                         <tr key={appt.id}>
                                             <td>
                                                 <div style={{ fontWeight: 600 }}>{(appt.pets as any)?.name || '—'}</div>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{(appt.pets as any)?.type}</div>
+                                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                                    {(appt.pets as any)?.type}{(appt.pets as any)?.breed ? ` - ${(appt.pets as any).breed}` : ''}
+                                                </div>
                                             </td>
                                             <td>{appt.service}</td>
                                             <td style={{ whiteSpace: 'nowrap' }}>
@@ -180,7 +213,11 @@ export default function DashboardPage() {
                                             </td>
                                             <td><StatusBadge status={appt.status} /></td>
                                             <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: 200 }}>
-                                                {appt.admin_notes || <span style={{ color: 'var(--text-muted)' }}>—</span>}
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                                    {(appt.pets as any)?.notes && <div><strong style={{ color: 'var(--text-primary)' }}>You:</strong> {(appt.pets as any).notes}</div>}
+                                                    {appt.admin_notes && <div><strong style={{ color: 'var(--text-primary)' }}>PawCare:</strong> {appt.admin_notes}</div>}
+                                                    {!(appt.pets as any)?.notes && !appt.admin_notes && <span style={{ color: 'var(--text-muted)' }}>—</span>}
+                                                </div>
                                             </td>
                                             <td>
                                                 {(appt.status === 'pending' || appt.status === 'approved') && (
@@ -203,14 +240,20 @@ export default function DashboardPage() {
             {cancelAppt && (
                 <div className="modal-backdrop" onClick={() => setCancelAppt(null)}>
                     <div className="modal" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <div className="modal-title">Cancel Appointment</div>
+                        <div className="modal-header" style={{ borderBottom: '1px solid var(--navy-border)', paddingBottom: '1.25rem', marginBottom: '1.5rem' }}>
+                            <div>
+                                <div className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--red)' }}>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
+                                    Cancel Appointment
+                                </div>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>This action cannot be undone.</p>
+                            </div>
                             <button className="modal-close" onClick={() => setCancelAppt(null)}>✕</button>
                         </div>
-                        <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem', marginTop: '0.5rem' }}>
-                            Are you sure you want to cancel your appointment for {(cancelAppt.pets as any)?.name} on {format(new Date(cancelAppt.scheduled_at), 'MMM d, yyyy')}? This action cannot be undone.
+                        <p style={{ fontSize: '0.95rem', marginBottom: '1.5rem', marginTop: 0, color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                            Are you sure you want to cancel your appointment for <span style={{ fontWeight: 600 }}>{(cancelAppt.pets as any)?.name}</span> on <span style={{ fontWeight: 600 }}>{format(new Date(cancelAppt.scheduled_at), 'MMM d, yyyy')}</span>?
                         </p>
-                        <div className="modal-footer">
+                        <div className="modal-footer" style={{ borderTop: '1px solid var(--navy-border)', paddingTop: '1.25rem', marginTop: 0 }}>
                             <button className="btn btn-ghost" onClick={() => setCancelAppt(null)} disabled={cancelLoading}>Keep Appointment</button>
                             <button className="btn btn-danger" onClick={handleCancel} disabled={cancelLoading}>
                                 {cancelLoading ? <span className="spinner" /> : 'Yes, Cancel Appointment'}
@@ -224,36 +267,56 @@ export default function DashboardPage() {
             {editProfileModal && (
                 <div className="modal-backdrop" onClick={() => setEditProfileModal(false)}>
                     <div className="modal" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <div className="modal-title">Edit Profile</div>
+                        <div className="modal-header" style={{ borderBottom: '1px solid var(--navy-border)', paddingBottom: '1.25rem', marginBottom: '1.5rem' }}>
+                            <div>
+                                <div className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--gold)' }}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                    Edit Your Profile
+                                </div>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Update your personal details below. This will be used when booking.</p>
+                            </div>
                             <button className="modal-close" onClick={() => setEditProfileModal(false)}>✕</button>
                         </div>
                         
                         {editToast && (
-                            <div className={`alert alert-${editToast.type}`} style={{ marginBottom: '1rem' }}>
+                            <div className={`alert alert-${editToast.type}`} style={{ marginBottom: '1.5rem' }}>
                                 {editToast.msg}
                             </div>
                         )}
 
-                        <div className="form-group">
-                            <label className="form-label">Full Name</label>
-                            <input type="text" className="form-input" value={editForm.full_name}
-                                onChange={e => setEditForm({ ...editForm, full_name: e.target.value })} />
-                        </div>
-                        
-                        <div className="form-group">
-                            <label className="form-label">Email</label>
-                            <input type="email" className="form-input" value={(profile as any)?.email || ''} disabled style={{ backgroundColor: 'var(--navy-light)', color: 'var(--text-muted)' }} />
-                            <div style={{ fontSize: '0.75rem', marginTop: '0.25rem', color: 'var(--text-secondary)' }}>Email cannot be changed here.</div>
+                        <div className="grid-2" style={{ gap: '1rem', marginBottom: '1rem' }}>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                                <label className="form-label">Full Name</label>
+                                <div style={{ position: 'relative' }}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                    <input type="text" className="form-input" style={{ paddingLeft: '2.75rem' }} value={editForm.full_name}
+                                        onChange={e => setEditForm({ ...editForm, full_name: e.target.value })} />
+                                </div>
+                            </div>
+                            
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                                <label className="form-label">Phone Number</label>
+                                <div style={{ position: 'relative' }}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+                                    <input type="tel" className="form-input" style={{ paddingLeft: '2.75rem' }} value={editForm.phone}
+                                        onChange={e => setEditForm({ ...editForm, phone: e.target.value })} />
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="form-group">
-                            <label className="form-label">Phone Number</label>
-                            <input type="tel" className="form-input" value={editForm.phone}
-                                onChange={e => setEditForm({ ...editForm, phone: e.target.value })} />
+                        <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                            <label className="form-label">Email Address</label>
+                            <div style={{ position: 'relative' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
+                                <input type="email" className="form-input" value={(profile as any)?.email || ''} disabled style={{ backgroundColor: 'var(--navy-light)', color: 'var(--text-muted)', paddingLeft: '2.75rem' }} />
+                            </div>
+                            <div style={{ fontSize: '0.75rem', marginTop: '0.35rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+                                Your email address serves as your primary login and cannot be modified here.
+                            </div>
                         </div>
 
-                        <div className="modal-footer">
+                        <div className="modal-footer" style={{ borderTop: '1px solid var(--navy-border)', paddingTop: '1.25rem', marginTop: 0 }}>
                             <button className="btn btn-ghost" onClick={() => setEditProfileModal(false)} disabled={editLoading}>Cancel</button>
                             <button className="btn btn-primary" onClick={async () => {
                                 setEditLoading(true)

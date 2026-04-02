@@ -59,13 +59,7 @@ export default function RegisterPage() {
         <div className="auth-container">
             <div className="auth-box" style={{ maxWidth: 480 }}>
                 <div className="auth-logo">
-                    <div className="auth-logo-icon" style={{ color: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
-                            <ellipse cx="6" cy="6.5" rx="2" ry="2.5" /><ellipse cx="10.5" cy="4" rx="2" ry="2.5" />
-                            <ellipse cx="15" cy="6.5" rx="2" ry="2.5" /><ellipse cx="18.5" cy="10.5" rx="1.8" ry="2.2" />
-                            <path d="M12 10c-3 0-6 2.5-6 5 0 2 1.5 4 3 4.5.8.3 1.8 0 3 0s2.2.3 3 0c1.5-.5 3-2.5 3-4.5 0-2.5-3-5-6-5z" />
-                        </svg>
-                    </div>
+                    <img src="/logo.png" alt="PawCare" style={{ height: '96px', width: 'auto', marginBottom: '1.25rem', margin: '0 auto', display: 'block', mixBlendMode: 'multiply', opacity: 0.9 }} />
                     <div className="auth-title">Create your account</div>
                     <div className="auth-subtitle">Start booking grooming appointments today</div>
                 </div>

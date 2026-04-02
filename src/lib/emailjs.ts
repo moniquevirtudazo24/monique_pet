@@ -51,12 +51,14 @@ export function buildApprovalEmail(params: {
     pet_name: string
     service: string
     date_time: string
+    admin_notes?: string
 }): EmailParams {
     const { service, pet_name, date_time } = params
     return {
         ...params,
         status: 'Approved',
         message: `Your ${service} appointment for ${pet_name} on ${date_time} has been approved.`,
+        admin_notes: params.admin_notes,
     }
 }
 

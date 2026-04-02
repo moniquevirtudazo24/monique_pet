@@ -150,7 +150,7 @@ export default function AdminAppointmentsPage() {
             }
 
             const emailParams = modalAction === 'approve'
-                ? buildApprovalEmail({ to_email: ownerEmail, to_name: ownerName, pet_name: petName, service: modalAppt.service, date_time: dtStr })
+                ? buildApprovalEmail({ to_email: ownerEmail, to_name: ownerName, pet_name: petName, service: modalAppt.service, date_time: dtStr, admin_notes: adminNotes })
                 : modalAction === 'reschedule'
                 ? buildRescheduledEmail({ to_email: ownerEmail, to_name: ownerName, pet_name: petName, service: modalAppt.service, date_time: dtStr, admin_notes: adminNotes })
                 : buildRejectionEmail({ to_email: ownerEmail, to_name: ownerName, pet_name: petName, service: modalAppt.service, date_time: dtStr, admin_notes: adminNotes })
@@ -235,10 +235,12 @@ export default function AdminAppointmentsPage() {
                                         <tr>
                                             <th>Customer</th>
                                             <th>Pet</th>
+                                            <th>Breed</th>
                                             <th>Service</th>
                                             <th>Scheduled</th>
                                             <th>Status</th>
-                                            <th>Notes</th>
+                                            <th>Special Notes</th>
+                                            <th>Admin Notes</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -250,20 +252,24 @@ export default function AdminAppointmentsPage() {
                                                 </td>
                                                 <td>
                                                     <div style={{ fontWeight: 500 }}>{appt.pets?.name}</div>
-                                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{appt.pets?.type}</div>
+                                                    <div style={{ fontSize: '0.85em', color: 'var(--text-muted)' }}>
+                                                        {appt.pets?.type}
+                                                    </div>
                                                 </td>
-                                                <td style={{ fontSize: '0.875rem' }}>{appt.service}</td>
-                                                <td style={{ whiteSpace: 'nowrap', fontSize: '0.85rem' }}>
+                                                <td>
+                                                    {appt.pets?.breed || <span style={{ color: 'var(--text-muted)' }}>—</span>}
+                                                </td>
+                                                <td>{appt.service}</td>
+                                                <td style={{ whiteSpace: 'nowrap' }}>
                                                     {format(new Date(appt.scheduled_at), 'MMM d, yyyy')}<br />
-                                                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{format(new Date(appt.scheduled_at), 'h:mm a')}</span>
+                                                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.85em' }}>{format(new Date(appt.scheduled_at), 'h:mm a')}</span>
                                                 </td>
                                                 <td><StatusBadge status={appt.status} /></td>
-                                                <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: 200 }}>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                                                        {appt.pets?.notes && <div><strong style={{ color: 'var(--text-primary)' }}>Pet:</strong> {appt.pets.notes}</div>}
-                                                        {appt.admin_notes && <div><strong style={{ color: 'var(--text-primary)' }}>Admin:</strong> {appt.admin_notes}</div>}
-                                                        {!appt.pets?.notes && !appt.admin_notes && <span style={{ color: 'var(--text-muted)' }}>—</span>}
-                                                    </div>
+                                                <td style={{ color: 'var(--text-secondary)', maxWidth: 220 }}>
+                                                    {appt.pets?.notes || <span style={{ color: 'var(--text-muted)' }}>—</span>}
+                                                </td>
+                                                <td style={{ color: 'var(--text-secondary)', maxWidth: 220 }}>
+                                                    {appt.admin_notes || <span style={{ color: 'var(--text-muted)' }}>—</span>}
                                                 </td>
                                                 <td>
                                                     {appt.status === 'pending' ? (
@@ -328,9 +334,26 @@ export default function AdminAppointmentsPage() {
             {modalAction && modalAppt && (
                 <div className="modal-backdrop" onClick={closeModal}>
                     <div className="modal" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
+                        <div className="modal-header" style={{ borderBottom: '1px solid var(--navy-border)', paddingBottom: '1.25rem', marginBottom: '1.5rem' }}>
                             <div>
-                                <div className="modal-title">
+                                <div className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', 
+                                    color: modalAction === 'approve' ? 'var(--green)' : 
+                                           modalAction === 'reject' || modalAction === 'delete' ? 'var(--red)' : 
+                                           modalAction === 'complete' ? 'var(--green)' : 
+                                           modalAction === 'archive' ? 'var(--text-secondary)' : 
+                                           modalAction === 'unarchive' ? 'var(--gold)' : 
+                                           modalAction === 'reschedule' ? 'var(--blue)' : 'var(--text-primary)' 
+                                }}>
+                                    {/* Dynamic Icon */}
+                                    {modalAction === 'approve' || modalAction === 'complete' ? (
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                                    ) : modalAction === 'reject' || modalAction === 'delete' ? (
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
+                                    ) : modalAction === 'reschedule' ? (
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /><path d="m9 16 2 2 4-4" /></svg>
+                                    ) : (
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8v13H3V8" /><path d="M1 3h22v5H1z" /><path d="M10 12h4" /></svg>
+                                    )}
                                     {modalAction === 'approve' ? 'Approve Appointment' : 
                                      modalAction === 'reject' ? 'Reject Appointment' : 
                                      modalAction === 'complete' ? 'Complete Appointment' : 
@@ -339,9 +362,8 @@ export default function AdminAppointmentsPage() {
                                      modalAction === 'reschedule' ? 'Reschedule Appointment' : 
                                      'Delete Appointment'}
                                 </div>
-                                <p style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>
-                                    {modalAppt.pets?.name} — {modalAppt.service} —{' '}
-                                    {format(new Date(modalAppt.scheduled_at), 'MMM d, yyyy h:mm a')}
+                                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{modalAppt.pets?.name}</span> • {modalAppt.service} • {format(new Date(modalAppt.scheduled_at), 'MMM d, yyyy h:mm a')}
                                 </p>
                             </div>
                             <button className="modal-close" onClick={closeModal}>✕</button>
@@ -371,19 +393,22 @@ export default function AdminAppointmentsPage() {
                             </div>
                         )}
                         {modalAction === 'delete' && (
-                            <p style={{ marginTop: '1rem', color: 'var(--red)' }}>Are you sure you want to permanently delete this appointment? This action cannot be undone.</p>
+                            <div className="alert alert-error" style={{ marginBottom: '1.5rem', marginTop: 0 }}>
+                                <strong style={{ display: 'block', marginBottom: '0.25rem' }}>Warning</strong>
+                                Are you sure you want to permanently delete this appointment? This action cannot be undone.
+                            </div>
                         )}
                         {modalAction === 'archive' && (
-                            <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>Are you sure you want to archive this appointment?</p>
+                            <p style={{ marginTop: 0, marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>Are you sure you want to archive this appointment?</p>
                         )}
                         {modalAction === 'unarchive' && (
-                            <p style={{ marginTop: '1rem', color: 'var(--gold)' }}>Are you sure you want to restore this appointment to pending status?</p>
+                            <p style={{ marginTop: 0, marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Are you sure you want to restore this appointment to <span style={{ fontWeight: 600 }}>pending</span> status?</p>
                         )}
                         {modalAction === 'complete' && (
-                            <p style={{ marginTop: '1rem', color: 'var(--green)' }}>Mark this appointment as completed?</p>
+                            <p style={{ marginTop: 0, marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Has this grooming session been successfully completed?</p>
                         )}
 
-                        <div className="modal-footer">
+                        <div className="modal-footer" style={{ borderTop: '1px solid var(--navy-border)', paddingTop: '1.25rem', marginTop: 0 }}>
                             <button className="btn btn-ghost" onClick={closeModal} disabled={actionLoading}>Cancel</button>
                             <button className={`btn ${modalAction === 'approve' || modalAction === 'complete' ? 'btn-success' : modalAction === 'delete' || modalAction === 'reject' ? 'btn-danger' : 'btn-primary'}`}
                                 onClick={handleAction} disabled={actionLoading}>

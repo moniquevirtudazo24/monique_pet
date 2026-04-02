@@ -42,9 +42,19 @@ const SignOutIcon = () => (
     </svg>
 )
 
+const PetProfilesIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="4" r="2" />
+        <circle cx="18" cy="8" r="2" />
+        <circle cx="20" cy="16" r="2" />
+        <path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z" />
+    </svg>
+)
+
 const links = [
     { href: '/admin', icon: <DashboardIcon />, label: 'Dashboard' },
     { href: '/admin/appointments', icon: <AppointmentsIcon />, label: 'Appointments' },
+    { href: '/admin/pet-profiles', icon: <PetProfilesIcon />, label: 'Pet Profiles' },
     { href: '/admin/calendar', icon: <CalendarIcon />, label: 'Calendar' },
     { href: '/admin/customers', icon: <CustomersIcon />, label: 'Customers' },
 ]
@@ -80,7 +90,7 @@ export default function AdminSidebar() {
                 </Link>
             ))}
             <div style={{ flex: 1 }} />
-            <button className="sidebar-link" onClick={handleLogout} style={{ marginTop: 'auto', color: 'var(--red)', borderTop: '1px solid var(--navy-border)', borderRadius: 0, paddingTop: '0.875rem', gap: '0.625rem' }}>
+            <button className="sidebar-link" onClick={handleLogout} style={{ marginTop: 'auto', color: '#ef4444', backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', borderLeft: '3px solid #0f172a', borderRadius: '4px', padding: '0.75rem 1rem', gap: '0.625rem', fontWeight: 500 }}>
                 <SignOutIcon />
                 Sign Out
             </button>

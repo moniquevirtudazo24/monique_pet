@@ -228,8 +228,17 @@ export default function BookPage() {
                             <div style={{ background: 'var(--navy-light)', borderRadius: 'var(--radius-sm)', padding: '1rem', marginTop: '0.5rem', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
                                 <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Appointment Summary</p>
                                 <div style={{ color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                    {(() => {
+                                        const p = selectedPetId === 'new' ? newPet : pets.find(x => x.id === selectedPetId)
+                                        return p ? (
+                                            <>
+                                                <span>Pet: <strong style={{ color: 'var(--text-primary)' }}>{p.name}</strong> ({p.type}{p.breed ? ` - ${p.breed}` : ''})</span>
+                                                {p.notes && <span>Notes: <strong style={{ color: 'var(--text-primary)' }}>{p.notes}</strong></span>}
+                                            </>
+                                        ) : null
+                                    })()}
                                     <span>Service: <strong style={{ color: 'var(--text-primary)' }}>{service}</strong></span>
-                                    {date && <span>Date: <strong style={{ color: 'var(--text-primary)' }}>{new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong></span>}
+                                    {date && <span>Date: <strong style={{ color: 'var(--text-primary)' }}>{new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {new Date(`2000-01-01T${time}:00`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong></span>}
                                 </div>
                             </div>
 
