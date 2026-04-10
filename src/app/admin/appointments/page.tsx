@@ -55,8 +55,8 @@ export default function AdminAppointmentsPage() {
     function openModal(action: ActionType, appt: any) {
         setModalAction(action)
         setModalAppt(appt)
-        setAdminNotes(appt.admin_notes || '')
-        
+        setAdminNotes(action === 'complete' ? '' : (appt.admin_notes || ''))
+
         if (action === 'reschedule') {
             const d = new Date(appt.scheduled_at)
             setNewDate(format(d, 'yyyy-MM-dd'))
@@ -74,7 +74,7 @@ export default function AdminAppointmentsPage() {
         setActionLoading(true)
 
         const supabase = createClient()
-        
+
         if (modalAction === 'delete') {
             const { error: deleteError } = await supabase
                 .from('appointments')
@@ -102,13 +102,13 @@ export default function AdminAppointmentsPage() {
             }
         }
 
-        const newStatus: AppointmentStatus = 
-            modalAction === 'approve' ? 'approved' : 
-            modalAction === 'reject' ? 'rejected' : 
-            modalAction === 'complete' ? 'completed' : 
-            modalAction === 'archive' ? 'archived' : 
-            modalAction === 'unarchive' ? 'pending' : 
-            modalAction === 'reschedule' ? 'pending' : 'pending' // Or 'approved', let's stick to pending so they can approve it later, or it stays its current status. Actually, we'll keep the current status for reschedule.
+        const newStatus: AppointmentStatus =
+            modalAction === 'approve' ? 'approved' :
+                modalAction === 'reject' ? 'rejected' :
+                    modalAction === 'complete' ? 'completed' :
+                        modalAction === 'archive' ? 'archived' :
+                            modalAction === 'unarchive' ? 'pending' :
+                                modalAction === 'reschedule' ? 'pending' : 'pending' // Or 'approved', let's stick to pending so they can approve it later, or it stays its current status. Actually, we'll keep the current status for reschedule.
 
         let statusToSet = newStatus
         if (modalAction === 'reschedule') {
@@ -132,14 +132,15 @@ export default function AdminAppointmentsPage() {
         }
 
         // Send email
-        if (modalAction === 'approve' || modalAction === 'reject' || modalAction === 'reschedule') {
+        if (modalAction === 'approve' || modalAction === 'reject' || modalAction === 'reschedule' || modalAction === 'complete') {
             const dateObj = modalAction === 'reschedule' ? new Date(`${newDate}T${newTime}:00`) : new Date(modalAppt.scheduled_at)
             const dtStr = format(dateObj, 'MMMM d, yyyy \'at\' h:mm a')
             const ownerEmail: string = modalAppt.profiles?.email || ''
             const ownerName: string = modalAppt.profiles?.full_name || 'Customer'
             const petName: string = modalAppt.pets?.name || 'your pet'
+            const petType: string = modalAppt.pets?.type || ''
 
-            const actionVerb = modalAction === 'approve' ? 'approved' : modalAction === 'reject' ? 'rejected' : 'rescheduled'
+            const actionVerb = modalAction === 'approve' ? 'approved' : modalAction === 'reject' ? 'rejected' : modalAction === 'complete' ? 'completed' : 'rescheduled'
 
             if (!ownerEmail) {
                 showToast(`Appointment ${actionVerb}. (No email address for customer)`, 'error')
@@ -150,10 +151,12 @@ export default function AdminAppointmentsPage() {
             }
 
             const emailParams = modalAction === 'approve'
-                ? buildApprovalEmail({ to_email: ownerEmail, to_name: ownerName, pet_name: petName, service: modalAppt.service, date_time: dtStr, admin_notes: adminNotes })
+                ? buildApprovalEmail({ to_email: ownerEmail, to_name: ownerName, pet_name: petName, pet_type: petType, service: modalAppt.service, date_time: dtStr, admin_notes: adminNotes })
                 : modalAction === 'reschedule'
-                ? buildRescheduledEmail({ to_email: ownerEmail, to_name: ownerName, pet_name: petName, service: modalAppt.service, date_time: dtStr, admin_notes: adminNotes })
-                : buildRejectionEmail({ to_email: ownerEmail, to_name: ownerName, pet_name: petName, service: modalAppt.service, date_time: dtStr, admin_notes: adminNotes })
+                    ? buildRescheduledEmail({ to_email: ownerEmail, to_name: ownerName, pet_name: petName, pet_type: petType, service: modalAppt.service, date_time: dtStr, admin_notes: adminNotes })
+                    : modalAction === 'complete'
+                        ? buildCompletionEmail({ to_email: ownerEmail, to_name: ownerName, pet_name: petName, pet_type: petType, service: modalAppt.service, date_time: dtStr, admin_notes: adminNotes })
+                        : buildRejectionEmail({ to_email: ownerEmail, to_name: ownerName, pet_name: petName, pet_type: petType, service: modalAppt.service, date_time: dtStr, admin_notes: adminNotes })
 
             const emailResult = await sendAppointmentEmail(emailParams)
 
@@ -336,13 +339,14 @@ export default function AdminAppointmentsPage() {
                     <div className="modal" onClick={e => e.stopPropagation()}>
                         <div className="modal-header" style={{ borderBottom: '1px solid var(--navy-border)', paddingBottom: '1.25rem', marginBottom: '1.5rem' }}>
                             <div>
-                                <div className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', 
-                                    color: modalAction === 'approve' ? 'var(--green)' : 
-                                           modalAction === 'reject' || modalAction === 'delete' ? 'var(--red)' : 
-                                           modalAction === 'complete' ? 'var(--green)' : 
-                                           modalAction === 'archive' ? 'var(--text-secondary)' : 
-                                           modalAction === 'unarchive' ? 'var(--gold)' : 
-                                           modalAction === 'reschedule' ? 'var(--blue)' : 'var(--text-primary)' 
+                                <div className="modal-title" style={{
+                                    display: 'flex', alignItems: 'center', gap: '0.5rem',
+                                    color: modalAction === 'approve' ? 'var(--green)' :
+                                        modalAction === 'reject' || modalAction === 'delete' ? 'var(--red)' :
+                                            modalAction === 'complete' ? 'var(--green)' :
+                                                modalAction === 'archive' ? 'var(--text-secondary)' :
+                                                    modalAction === 'unarchive' ? 'var(--gold)' :
+                                                        modalAction === 'reschedule' ? 'var(--blue)' : 'var(--text-primary)'
                                 }}>
                                     {/* Dynamic Icon */}
                                     {modalAction === 'approve' || modalAction === 'complete' ? (
@@ -354,13 +358,13 @@ export default function AdminAppointmentsPage() {
                                     ) : (
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8v13H3V8" /><path d="M1 3h22v5H1z" /><path d="M10 12h4" /></svg>
                                     )}
-                                    {modalAction === 'approve' ? 'Approve Appointment' : 
-                                     modalAction === 'reject' ? 'Reject Appointment' : 
-                                     modalAction === 'complete' ? 'Complete Appointment' : 
-                                     modalAction === 'archive' ? 'Archive Appointment' : 
-                                     modalAction === 'unarchive' ? 'Unarchive Appointment' : 
-                                     modalAction === 'reschedule' ? 'Reschedule Appointment' : 
-                                     'Delete Appointment'}
+                                    {modalAction === 'approve' ? 'Approve Appointment' :
+                                        modalAction === 'reject' ? 'Reject Appointment' :
+                                            modalAction === 'complete' ? 'Complete Appointment' :
+                                                modalAction === 'archive' ? 'Archive Appointment' :
+                                                    modalAction === 'unarchive' ? 'Unarchive Appointment' :
+                                                        modalAction === 'reschedule' ? 'Reschedule Appointment' :
+                                                            'Delete Appointment'}
                                 </div>
                                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                                     <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{modalAppt.pets?.name}</span> • {modalAppt.service} • {format(new Date(modalAppt.scheduled_at), 'MMM d, yyyy h:mm a')}
@@ -405,21 +409,29 @@ export default function AdminAppointmentsPage() {
                             <p style={{ marginTop: 0, marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Are you sure you want to restore this appointment to <span style={{ fontWeight: 600 }}>pending</span> status?</p>
                         )}
                         {modalAction === 'complete' && (
-                            <p style={{ marginTop: 0, marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Has this grooming session been successfully completed?</p>
+                            <div>
+                                <p style={{ marginTop: 0, marginBottom: '1rem', color: 'var(--text-primary)' }}>Has this grooming session been successfully completed?</p>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label">Message for Customer (optional)</label>
+                                    <textarea className="form-textarea" value={adminNotes}
+                                        onChange={e => setAdminNotes(e.target.value)}
+                                        placeholder='e.g. It was a pleasure serving your pet! See you next time.' />
+                                </div>
+                            </div>
                         )}
 
                         <div className="modal-footer" style={{ borderTop: '1px solid var(--navy-border)', paddingTop: '1.25rem', marginTop: 0 }}>
                             <button className="btn btn-ghost" onClick={closeModal} disabled={actionLoading}>Cancel</button>
                             <button className={`btn ${modalAction === 'approve' || modalAction === 'complete' ? 'btn-success' : modalAction === 'delete' || modalAction === 'reject' ? 'btn-danger' : 'btn-primary'}`}
                                 onClick={handleAction} disabled={actionLoading}>
-                                {actionLoading ? <span className="spinner" /> : 
-                                 modalAction === 'approve' ? 'Confirm & Approve' : 
-                                 modalAction === 'reject' ? 'Confirm & Reject' : 
-                                 modalAction === 'complete' ? 'Confirm & Complete' : 
-                                 modalAction === 'archive' ? 'Confirm & Archive' : 
-                                 modalAction === 'unarchive' ? 'Confirm & Unarchive' : 
-                                 modalAction === 'reschedule' ? 'Confirm & Reschedule' : 
-                                 'Confirm & Delete'}
+                                {actionLoading ? <span className="spinner" /> :
+                                    modalAction === 'approve' ? 'Confirm & Approve' :
+                                        modalAction === 'reject' ? 'Confirm & Reject' :
+                                            modalAction === 'complete' ? 'Confirm & Complete' :
+                                                modalAction === 'archive' ? 'Confirm & Archive' :
+                                                    modalAction === 'unarchive' ? 'Confirm & Unarchive' :
+                                                        modalAction === 'reschedule' ? 'Confirm & Reschedule' :
+                                                            'Confirm & Delete'}
                             </button>
                         </div>
                     </div>

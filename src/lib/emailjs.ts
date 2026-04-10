@@ -2,6 +2,7 @@ export interface EmailParams {
     to_email: string
     to_name: string
     pet_name: string
+    pet_type?: string
     service: string
     date_time: string
     status: string
@@ -49,15 +50,17 @@ export function buildApprovalEmail(params: {
     to_email: string
     to_name: string
     pet_name: string
+    pet_type?: string
     service: string
     date_time: string
     admin_notes?: string
 }): EmailParams {
-    const { service, pet_name, date_time } = params
+    const { service, pet_name, pet_type, date_time } = params
+    const petLabel = pet_type ? `${pet_name} (${pet_type})` : pet_name
     return {
         ...params,
         status: 'Approved',
-        message: `Your ${service} appointment for ${pet_name} on ${date_time} has been approved.`,
+        message: `Your ${service} appointment for ${petLabel} on ${date_time} has been approved.`,
         admin_notes: params.admin_notes,
     }
 }
@@ -66,15 +69,17 @@ export function buildRejectionEmail(params: {
     to_email: string
     to_name: string
     pet_name: string
+    pet_type?: string
     service: string
     date_time: string
     admin_notes?: string
 }): EmailParams {
-    const { service, pet_name, date_time } = params
+    const { service, pet_name, pet_type, date_time } = params
+    const petLabel = pet_type ? `${pet_name} (${pet_type})` : pet_name
     return {
         ...params,
         status: 'Rejected',
-        message: `Your ${service} appointment for ${pet_name} on ${date_time} has been rejected. Please contact us if you would like to reschedule.`,
+        message: `Your ${service} appointment for ${petLabel} on ${date_time} has been rejected. Please contact us if you would like to reschedule.`,
         admin_notes: params.admin_notes,
     }
 }
@@ -98,15 +103,17 @@ export function buildRescheduledEmail(params: {
     to_email: string
     to_name: string
     pet_name: string
+    pet_type?: string
     service: string
     date_time: string
     admin_notes?: string
 }): EmailParams {
-    const { service, pet_name, date_time } = params
+    const { service, pet_name, pet_type, date_time } = params
+    const petLabel = pet_type ? `${pet_name} (${pet_type})` : pet_name
     return {
         ...params,
         status: 'Rescheduled',
-        message: `Your ${service} appointment for ${pet_name} has been rescheduled to ${date_time}.`,
+        message: `Your ${service} appointment for ${petLabel} has been rescheduled to ${date_time}.`,
         admin_notes: params.admin_notes,
     }
 }
@@ -115,14 +122,18 @@ export function buildCompletionEmail(params: {
     to_email: string
     to_name: string
     pet_name: string
+    pet_type?: string
     service: string
     date_time: string
+    admin_notes?: string
 }): EmailParams {
-    const { service, pet_name, date_time } = params
+    const { service, pet_name, pet_type, date_time } = params
+    const petLabel = pet_type ? `${pet_name} (${pet_type})` : pet_name
     return {
         ...params,
         status: 'Completed',
-        message: `Your ${service} appointment for ${pet_name} on ${date_time} has been completed. Thank you for choosing us!`,
+        message: `Your ${service} appointment for ${petLabel} on ${date_time} has been completed. Thank you for choosing PawCare!`,
+        admin_notes: params.admin_notes,
     }
 }
 

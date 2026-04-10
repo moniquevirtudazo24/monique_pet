@@ -61,13 +61,13 @@ export default function AdminLoginPage() {
                     <form onSubmit={handleSubmit}>
                         <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                             <input id="admin-email" type="email" className="form-input" placeholder="Admin Email" value={form.email}
-                                onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required 
+                                onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required
                                 style={{ borderRadius: '8px', padding: '1rem', background: '#fafafa', border: 'none', color: '#171717', fontSize: '1rem' }} />
                         </div>
                         <div className="form-group" style={{ marginBottom: '1.75rem' }}>
                             <div style={{ position: 'relative' }}>
                                 <input id="admin-password" type={showPassword ? 'text' : 'password'} className="form-input" placeholder="Password" value={form.password}
-                                    onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required 
+                                    onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required
                                     style={{ borderRadius: '8px', padding: '1rem', paddingRight: '3rem', background: '#fafafa', border: 'none', color: '#171717', fontSize: '1rem' }} />
                                 <button type="button" onClick={() => setShowPassword(v => !v)}
                                     style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#737373' }}

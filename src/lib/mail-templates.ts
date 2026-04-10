@@ -37,6 +37,7 @@ export function buildAppointmentEmailSubject(params: {
 export function buildAppointmentNotificationHtml(params: {
     to_name: string
     pet_name: string
+    pet_type?: string
     service: string
     date_time: string
     status: string
@@ -66,7 +67,7 @@ export function buildAppointmentNotificationHtml(params: {
         <p style="margin:0 0 16px;">Hi ${escapeHtml(params.to_name)},</p>
         <p style="margin:0 0 20px;">${escapeHtml(params.message)}</p>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:15px;">
-          <tr><td style="padding:10px 0;color:#6b7280;width:140px;">Pet</td><td style="padding:10px 0;font-weight:600;">${escapeHtml(params.pet_name)}</td></tr>
+          <tr><td style="padding:10px 0;color:#6b7280;width:140px;">Pet</td><td style="padding:10px 0;font-weight:600;">${escapeHtml(params.pet_name)}${params.pet_type ? `/${escapeHtml(params.pet_type)}` : ''}</td></tr>
           <tr><td style="padding:10px 0;color:#6b7280;border-top:1px solid #f3f4f6;">Service</td><td style="padding:10px 0;border-top:1px solid #f3f4f6;">${escapeHtml(params.service)}</td></tr>
           <tr><td style="padding:10px 0;color:#6b7280;border-top:1px solid #f3f4f6;">Date &amp; time</td><td style="padding:10px 0;border-top:1px solid #f3f4f6;">${escapeHtml(params.date_time)}</td></tr>
           <tr><td style="padding:10px 0;color:#6b7280;border-top:1px solid #f3f4f6;vertical-align:middle;">Status</td><td style="padding:10px 0;border-top:1px solid #f3f4f6;">${badge}</td></tr>

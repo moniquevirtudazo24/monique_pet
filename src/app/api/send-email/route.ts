@@ -12,7 +12,7 @@ function smtpConfigured(): boolean {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json()
-        const { to_email, to_name, pet_name, service, date_time, status, message, admin_notes } =
+        const { to_email, to_name, pet_name, pet_type, service, date_time, status, message, admin_notes } =
             body
 
         if (!to_email) {
@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
         const html = buildAppointmentNotificationHtml({
             to_name: to_name || 'Customer',
             pet_name: pet_name || 'your pet',
+            pet_type: pet_type || '',
             service: service || 'Grooming',
             date_time: date_time || '',
             status: status || 'Update',
