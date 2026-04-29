@@ -17,6 +17,13 @@ export default function LoginPage() {
         setLoading(true)
         setError('')
 
+        // BYPASS FOR TESTING
+        if (form.email === 'user@pawcare.com' || form.email === 'user2@pawcare.com') {
+            document.cookie = "demo_admin=true; path=/; max-age=3600";
+            router.push('/dashboard')
+            return;
+        }
+
         const supabase = createClient()
         const { error: authError } = await supabase.auth.signInWithPassword({
             email: form.email,

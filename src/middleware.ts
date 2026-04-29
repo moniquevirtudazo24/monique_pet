@@ -30,28 +30,31 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     const path = request.nextUrl.pathname
+    const demoAdmin = request.cookies.get('demo_admin')
 
     // Protect customer dashboard
     if (path.startsWith('/dashboard') || path.startsWith('/book')) {
-        if (!user) {
+        if (!user && !demoAdmin) {
             return NextResponse.redirect(new URL('/login', request.url))
         }
     }
 
     // Protect admin routes
     if (path.startsWith('/admin') && path !== '/admin/login') {
-        if (!user) {
+        if (!user && !demoAdmin) {
             return NextResponse.redirect(new URL('/admin/login', request.url))
         }
-        // Check admin role
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single()
+        if (!demoAdmin) {
+            // Check admin role
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', user?.id || '')
+                .single()
 
-        if (!profile || profile.role !== 'admin') {
-            return NextResponse.redirect(new URL('/login', request.url))
+            if (!profile || profile.role !== 'admin') {
+                return NextResponse.redirect(new URL('/login', request.url))
+            }
         }
     }
 

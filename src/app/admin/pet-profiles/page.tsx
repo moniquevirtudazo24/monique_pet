@@ -27,12 +27,33 @@ export default function AdminPetProfilesPage() {
         async function load() {
             const supabase = createClient()
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user) { router.push('/admin/login'); return }
+            if (!user && !document.cookie.includes('demo_admin=true')) { router.push('/admin/login'); return }
 
-            const { data } = await supabase
+            let { data } = await supabase
                 .from('pets')
                 .select('*, profiles(full_name)')
                 .order('created_at', { ascending: false })
+
+            if (!user && document.cookie.includes('demo_admin=true') && (!data || data.length === 0)) {
+                try {
+                    const stored = localStorage.getItem('demo_sync_appointments');
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        
+                        // Extract unique pets from the stored appointments
+                        const petMap: Record<string, any> = {};
+                        for (const a of parsed) {
+                            if (a.pets) {
+                                petMap[a.pets.id || a.pets.name] = {
+                                    ...a.pets,
+                                    profiles: a.profiles || { full_name: 'Unknown Owner' }
+                                };
+                            }
+                        }
+                        data = Object.values(petMap);
+                    }
+                } catch (e) {}
+            }
 
             if (data) {
                 setPets(data.map((p: any) => ({
@@ -143,7 +164,7 @@ export default function AdminPetProfilesPage() {
                                                     )}
                                                 </td>
                                                 <td style={{ fontWeight: 500 }}>{p.owner_name}</td>
-                                                <td style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{format(new Date(p.created_at), 'MMM d, yyyy')}</td>
+                                                <td style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{format(new Date(p.created_at || new Date().toISOString()), 'MMM d, yyyy')}</td>
                                             </tr>
                                         ))}
                                     </tbody>
