@@ -10,7 +10,7 @@ import { sendAppointmentEmail, buildApprovalEmail, buildRejectionEmail, buildCom
 import { Appointment, AppointmentStatus } from '@/lib/types'
 import { format } from 'date-fns'
 
-type ActionType = 'approve' | 'reject' | 'complete' | 'archive' | 'unarchive' | 'delete' | 'reschedule' | null
+type ActionType = 'approve' | 'reject' | 'complete' | 'archive' | 'unarchive' | 'reschedule' | null
 
 export default function AdminAppointmentsPage() {
     const router = useRouter()
@@ -42,20 +42,9 @@ export default function AdminAppointmentsPage() {
         const { data } = await supabase
             .from('appointments')
             .select('*, pets(name, type, breed, notes), profiles(full_name, email, phone)')
-            .order('scheduled_at', { ascending: true })
+            .order('scheduled_at', { ascending: false })
             
-        let finalData = data || [];
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user && document.cookie.includes('demo_admin=true') && finalData.length === 0) {
-            try {
-                const stored = localStorage.getItem('demo_sync_appointments');
-                if (stored) {
-                    finalData = JSON.parse(stored);
-                }
-            } catch (e) {}
-        }
-        
-        setAppointments(finalData)
+        setAppointments(data || [])
         setLoading(false)
     }
 
@@ -87,24 +76,7 @@ export default function AdminAppointmentsPage() {
 
         const supabase = createClient()
 
-        if (modalAction === 'delete') {
-            const { error: deleteError } = await supabase
-                .from('appointments')
-                .delete()
-                .eq('id', modalAppt.id)
 
-            if (deleteError) {
-                showToast('Failed to delete appointment.', 'error')
-                setActionLoading(false)
-                return
-            }
-
-            showToast('Appointment deleted.', 'success')
-            await fetchAppointments()
-            setActionLoading(false)
-            closeModal()
-            return
-        }
 
         if (modalAction === 'reschedule') {
             if (!newDate || !newTime) {
@@ -289,7 +261,7 @@ export default function AdminAppointmentsPage() {
                                                 <td>
                                                     {appt.status === 'pending' ? (
                                                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                            <button className="btn btn-success" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
+                                                            <button className="btn btn-blue" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
                                                                 onClick={() => openModal('approve', appt)}>
                                                                 Approve
                                                             </button>
@@ -328,10 +300,7 @@ export default function AdminAppointmentsPage() {
                                                                     Unarchive
                                                                 </button>
                                                             )}
-                                                            <button className="btn btn-outline" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', color: 'var(--red)', borderColor: 'var(--red)' }}
-                                                                onClick={() => openModal('delete', appt)}>
-                                                                Delete
-                                                            </button>
+
                                                         </div>
                                                     )}
                                                 </td>
@@ -353,8 +322,8 @@ export default function AdminAppointmentsPage() {
                             <div>
                                 <div className="modal-title" style={{
                                     display: 'flex', alignItems: 'center', gap: '0.5rem',
-                                    color: modalAction === 'approve' ? 'var(--green)' :
-                                        modalAction === 'reject' || modalAction === 'delete' ? 'var(--red)' :
+                                    color: modalAction === 'approve' ? 'var(--blue)' :
+                                        modalAction === 'reject' ? 'var(--red)' :
                                             modalAction === 'complete' ? 'var(--green)' :
                                                 modalAction === 'archive' ? 'var(--text-secondary)' :
                                                     modalAction === 'unarchive' ? 'var(--gold)' :
@@ -363,7 +332,7 @@ export default function AdminAppointmentsPage() {
                                     {/* Dynamic Icon */}
                                     {modalAction === 'approve' || modalAction === 'complete' ? (
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-                                    ) : modalAction === 'reject' || modalAction === 'delete' ? (
+                                    ) : modalAction === 'reject' ? (
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
                                     ) : modalAction === 'reschedule' ? (
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /><path d="m9 16 2 2 4-4" /></svg>
@@ -375,8 +344,7 @@ export default function AdminAppointmentsPage() {
                                             modalAction === 'complete' ? 'Complete Appointment' :
                                                 modalAction === 'archive' ? 'Archive Appointment' :
                                                     modalAction === 'unarchive' ? 'Unarchive Appointment' :
-                                                        modalAction === 'reschedule' ? 'Reschedule Appointment' :
-                                                            'Delete Appointment'}
+                                                        modalAction === 'reschedule' ? 'Reschedule Appointment' : ''}
                                 </div>
                                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                                     <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{modalAppt.pets?.name}</span> • {modalAppt.service} • {format(new Date(modalAppt.scheduled_at), 'MMM d, yyyy h:mm a')}
@@ -398,7 +366,7 @@ export default function AdminAppointmentsPage() {
                             </div>
                         )}
 
-                        {modalAction !== 'delete' && modalAction !== 'archive' && modalAction !== 'unarchive' && modalAction !== 'complete' && modalAction !== 'reschedule' && (
+                        {modalAction !== 'archive' && modalAction !== 'unarchive' && modalAction !== 'complete' && modalAction !== 'reschedule' && (
                             <div className="form-group" style={{ marginBottom: 0 }}>
                                 <label className="form-label">
                                     {modalAction === 'approve' ? 'Notes for Customer (optional)' : 'Reason for Rejection'}
@@ -408,12 +376,7 @@ export default function AdminAppointmentsPage() {
                                     placeholder={modalAction === 'approve' ? 'e.g. Please arrive 10 minutes early.' : 'e.g. Fully booked on this date.'} />
                             </div>
                         )}
-                        {modalAction === 'delete' && (
-                            <div className="alert alert-error" style={{ marginBottom: '1.5rem', marginTop: 0 }}>
-                                <strong style={{ display: 'block', marginBottom: '0.25rem' }}>Warning</strong>
-                                Are you sure you want to permanently delete this appointment? This action cannot be undone.
-                            </div>
-                        )}
+
                         {modalAction === 'archive' && (
                             <p style={{ marginTop: 0, marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>Are you sure you want to archive this appointment?</p>
                         )}
@@ -434,7 +397,7 @@ export default function AdminAppointmentsPage() {
 
                         <div className="modal-footer" style={{ borderTop: '1px solid var(--navy-border)', paddingTop: '1.25rem', marginTop: 0 }}>
                             <button className="btn btn-ghost" onClick={closeModal} disabled={actionLoading}>Cancel</button>
-                            <button className={`btn ${modalAction === 'approve' || modalAction === 'complete' ? 'btn-success' : modalAction === 'delete' || modalAction === 'reject' ? 'btn-danger' : 'btn-primary'}`}
+                            <button className={`btn ${modalAction === 'complete' ? 'btn-success' : modalAction === 'approve' ? 'btn-blue' : modalAction === 'reject' ? 'btn-danger' : 'btn-primary'}`}
                                 onClick={handleAction} disabled={actionLoading}>
                                 {actionLoading ? <span className="spinner" /> :
                                     modalAction === 'approve' ? 'Confirm & Approve' :
@@ -442,8 +405,7 @@ export default function AdminAppointmentsPage() {
                                             modalAction === 'complete' ? 'Confirm & Complete' :
                                                 modalAction === 'archive' ? 'Confirm & Archive' :
                                                     modalAction === 'unarchive' ? 'Confirm & Unarchive' :
-                                                        modalAction === 'reschedule' ? 'Confirm & Reschedule' :
-                                                            'Confirm & Delete'}
+                                                        modalAction === 'reschedule' ? 'Confirm & Reschedule' : ''}
                             </button>
                         </div>
                     </div>

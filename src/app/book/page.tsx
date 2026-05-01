@@ -33,8 +33,14 @@ export default function BookPage() {
         async function load() {
             const supabase = createClient()
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user && !document.cookie.includes('demo_admin=true')) { router.push('/login'); return }
-            const uid = user?.id || 'demo-user-id';
+            
+            if (!user) {
+                router.push('/login'); 
+                return;
+            }
+
+            const uid = user.id;
+
             setUserId(uid)
             const { data: petsData } = await supabase.from('pets').select('*').eq('owner_id', uid)
             setPets(petsData || [])

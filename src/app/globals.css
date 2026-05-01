@@ -19,6 +19,8 @@
   --red-bg: #fef2f2;
   --red-border: #fecaca;
   --blue: #3b82f6;
+  --blue-bg: #eff6ff;
+  --blue-border: #bfdbfe;
   --radius: 12px;
   --radius-sm: 8px;
   --shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
@@ -99,6 +101,13 @@ p  { color: var(--text-secondary); line-height: 1.6; }
 }
 .btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
 
+.btn-blue {
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid var(--blue-border);
+}
+.btn-blue:hover { background: rgba(59, 130, 246, 0.2); }
+
 .btn-ghost {
   background: transparent;
   color: var(--text-secondary);
@@ -178,6 +187,12 @@ p  { color: var(--text-secondary); line-height: 1.6; }
   min-height: 80px;
 }
 
+/* Hide native password reveal button in Edge/Windows */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
 /* ─── Status Badges ───────────────────────────────────────── */
 .badge {
   display: inline-flex;
@@ -198,9 +213,9 @@ p  { color: var(--text-secondary); line-height: 1.6; }
 }
 
 .badge-approved {
-  background: var(--green-bg);
-  color: var(--green);
-  border: 1px solid var(--green-border);
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid var(--blue-border);
 }
 
 .badge-rejected {
@@ -710,7 +725,7 @@ tbody tr:hover {
 }
 
 .fc .fc-event.pending    { background: var(--yellow) !important; color: var(--navy) !important; }
-.fc .fc-event.approved   { background: var(--green)  !important; color: var(--navy) !important; }
+.fc .fc-event.approved   { background: var(--blue)  !important; color: #fff !important; }
 .fc .fc-event.rejected   { background: var(--red)    !important; color: #fff !important; }
 .fc .fc-event.completed  { background: #10b981       !important; color: var(--navy) !important; }
 .fc .fc-event.cancelled  { background: #f97316       !important; color: var(--navy) !important; }

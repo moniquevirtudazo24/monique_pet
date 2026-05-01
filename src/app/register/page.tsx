@@ -42,13 +42,20 @@ export default function RegisterPage() {
         }
 
         if (data.user) {
-            await supabase.from('profiles').upsert({
+            const { error: profileError } = await supabase.from('profiles').insert({
                 id: data.user.id,
                 full_name: form.full_name,
                 email: form.email,
                 phone: form.phone,
                 role: 'customer',
             })
+
+            if (profileError) {
+                console.error("Profile Error:", profileError);
+                setError("Database Security Error: Your user was created, but Supabase blocked saving your profile. You must run the SQL fix in your Supabase dashboard.")
+                setLoading(false)
+                return
+            }
         }
 
         router.push('/dashboard')

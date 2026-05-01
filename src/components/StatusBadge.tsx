@@ -2,7 +2,7 @@ import { AppointmentStatus } from '@/lib/types'
 
 const STATUS_CONFIG: Record<AppointmentStatus, { label: string; className: string; dot: string }> = {
     pending: { label: 'Pending', className: 'badge badge-pending', dot: '#eab308' },
-    approved: { label: 'Approved', className: 'badge badge-approved', dot: '#22c55e' },
+    approved: { label: 'Approved', className: 'badge badge-approved', dot: '#3b82f6' },
     rejected: { label: 'Rejected', className: 'badge badge-rejected', dot: '#ef4444' },
     cancelled: { label: 'Cancelled', className: 'badge badge-cancelled', dot: '#f97316' },
     completed: { label: 'Completed', className: 'badge badge-completed', dot: '#10b981' },
