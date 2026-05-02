@@ -36,9 +36,9 @@ export default function DashboardPage() {
         async function load() {
             const supabase = createClient()
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user && !document.cookie.includes('demo_admin=true')) { router.push('/login'); return }
+            if (!user) { router.push('/login'); return }
 
-            const userId = user?.id || 'demo-user-id';
+            const userId = user.id;
 
             const [{ data: prof }, { data: appts }] = await Promise.all([
                 supabase.from('profiles').select('full_name, email, phone').eq('id', userId).single(),
@@ -56,18 +56,6 @@ export default function DashboardPage() {
 
             setProfile(prof)
             setAppointments(apptsWithProfile)
-            if (apptsWithProfile.length > 0) {
-                try {
-                    const existingStr = localStorage.getItem('demo_sync_appointments');
-                    let allAppts = existingStr ? JSON.parse(existingStr) : [];
-                    
-                    // Remove old ones from this user to prevent duplicates
-                    allAppts = allAppts.filter((a: any) => a.owner_id !== userId);
-                    allAppts = [...allAppts, ...apptsWithProfile];
-                    
-                    localStorage.setItem('demo_sync_appointments', JSON.stringify(allAppts));
-                } catch (e) {}
-            }
             setLoading(false)
         }
         load()
@@ -116,8 +104,8 @@ export default function DashboardPage() {
 
         // reload data
         const { data: { user } } = await supabase.auth.getUser()
-        const uid = user?.id || 'demo-user-id';
-        if (user || document.cookie.includes('demo_admin=true')) {
+        if (user) {
+            const uid = user.id;
             const { data: appts } = await supabase
                 .from('appointments')
                 .select('*, pets(name, type, breed, notes)')
@@ -128,18 +116,6 @@ export default function DashboardPage() {
                 profiles: profile
             }));
             setAppointments(apptsWithProfile)
-            if (apptsWithProfile.length > 0) {
-                try {
-                    const existingStr = localStorage.getItem('demo_sync_appointments');
-                    let allAppts = existingStr ? JSON.parse(existingStr) : [];
-                    
-                    // Remove old ones from this user to prevent duplicates
-                    allAppts = allAppts.filter((a: any) => a.owner_id !== uid);
-                    allAppts = [...allAppts, ...apptsWithProfile];
-                    
-                    localStorage.setItem('demo_sync_appointments', JSON.stringify(allAppts));
-                } catch (e) {}
-            }
         }
         
         setCancelLoading(false)
@@ -355,7 +331,12 @@ export default function DashboardPage() {
                                 setEditToast(null)
                                 const supabase = createClient()
                                 const { data: { user } } = await supabase.auth.getUser()
-                                const uid = user?.id || 'demo-user-id';
+                                if (!user) {
+                                    setEditToast({ msg: 'Not logged in.', type: 'error' })
+                                    setEditLoading(false)
+                                    return
+                                }
+                                const uid = user.id;
                                 
                                 const { error } = await supabase.from('profiles').update({
                                     full_name: editForm.full_name,

@@ -31,7 +31,7 @@ export default function AdminAppointmentsPage() {
         async function load() {
             const supabase = createClient()
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user && !document.cookie.includes('demo_admin=true')) { router.push('/admin/login'); return }
+            if (!user) { router.push('/admin/login'); return }
             await fetchAppointments()
         }
         load()

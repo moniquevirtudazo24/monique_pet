@@ -27,7 +27,7 @@ export default function AdminCustomersPage() {
         async function load() {
             const supabase = createClient()
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user && !document.cookie.includes('demo_admin=true')) { router.push('/admin/login'); return }
+            if (!user) { router.push('/admin/login'); return }
 
             // Fetch all customer profiles
             let { data: profiles } = await supabase
@@ -42,30 +42,6 @@ export default function AdminCustomersPage() {
                 .select('owner_id, scheduled_at')
                 .order('scheduled_at', { ascending: false })
 
-            if (!user && document.cookie.includes('demo_admin=true') && (!profiles || profiles.length === 0)) {
-                try {
-                    const stored = localStorage.getItem('demo_sync_appointments');
-                    if (stored) {
-                        const parsed = JSON.parse(stored);
-                        appts = parsed;
-                        
-                        // Extract unique profiles from the stored appointments
-                        const profMap: Record<string, any> = {};
-                        for (const a of parsed) {
-                            if (a.profiles) {
-                                profMap[a.profiles.email] = {
-                                    id: a.owner_id,
-                                    full_name: a.profiles.full_name,
-                                    email: a.profiles.email,
-                                    phone: a.profiles.phone || '',
-                                    created_at: a.created_at || new Date().toISOString()
-                                };
-                            }
-                        }
-                        profiles = Object.values(profMap);
-                    }
-                } catch (e) {}
-            }
 
             if (!profiles) { setLoading(false); return }
 

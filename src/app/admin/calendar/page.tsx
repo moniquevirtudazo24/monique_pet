@@ -21,21 +21,13 @@ export default function AdminCalendarPage() {
         async function load() {
             const supabase = createClient()
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user && !document.cookie.includes('demo_admin=true')) { router.push('/admin/login'); return }
+            if (!user) { router.push('/admin/login'); return }
 
             const { data } = await supabase
                 .from('appointments')
                 .select('*, pets(name, type), profiles(full_name, email, phone)')
                 .order('scheduled_at')
             let finalData = data || [];
-            if (!user && document.cookie.includes('demo_admin=true') && finalData.length === 0) {
-                try {
-                    const stored = localStorage.getItem('demo_sync_appointments');
-                    if (stored) {
-                        finalData = JSON.parse(stored);
-                    }
-                } catch (e) {}
-            }
 
             const mapped = finalData.map((appt: any) => ({
                 id: appt.id,
